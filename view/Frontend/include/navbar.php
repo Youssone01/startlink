@@ -18,7 +18,7 @@ if (session_status() == PHP_SESSION_NONE) {
             <a href="index.php" class="nav-item nav-link active"><i class="fas fa-home"></i> Home</a>
             <a href="offres.php" class="nav-item nav-link"><i class="fas fa-briefcase"></i> Offres</a>
             <a href="Formations.php" class="nav-item nav-link"><i class="fas fa-chalkboard-teacher"></i> Formation</a>
-            <a href="evenement.php" class="nav-item nav-link"><i class="fas fa-calendar-alt"></i> Événements</a>
+            <a href="afficherEvent.php" class="nav-item nav-link"><i class="fas fa-calendar-alt"></i> Événements</a>
             <a href="blog.php" class="nav-item nav-link"><i class="fas fa-blog"></i> Blog</a>
             <a href="quiz.php" class="nav-item nav-link"><i class="fas fa-question-circle"></i> Quiz</a>
             <a href="certifications.php" class="nav-item nav-link"><i class="fas fa-certificate"></i> Certifications</a>

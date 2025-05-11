@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['admin_id'])) {
-    header('Location: ../../View/Backend/index.php');
+    header('Location: ../../View/Backend/dashboard.php');
     exit;
 }
 ?>

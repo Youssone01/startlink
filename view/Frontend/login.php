@@ -2,7 +2,7 @@
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    require_once __DIR__ . '/../../Controllers/userController.php';
+    require_once __DIR__ . '/../../Controller/userController.php';
     
     try {
         $email = trim($_POST['email']);

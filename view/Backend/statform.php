@@ -1,9 +1,9 @@
 <?php  
 // Connexion à la base de données
 $host = 'localhost';
-$db   = 'startlink'; 
+$db   = 'Startlink'; 
 $user = 'root';
-$pass = 'khansajk';
+$pass = '';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);

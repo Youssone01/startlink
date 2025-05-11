@@ -74,9 +74,9 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="evenements.php" target="_blank">
+                    <a href="voirParticipants.php" target="_blank">
                         <i class="fas fa-calendar-alt"></i>
-                        <p>Evènements</p>
+                        <p>Voir Participants</p>
                     </a>
                 </li>
 
