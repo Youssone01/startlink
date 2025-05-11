@@ -60,7 +60,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="../listeoffres.php" target="_blank">
+                    <a href="gestion_offres.php" target="_blank">
                         <i class="fas fa-briefcase"></i>
                         <p>Offres d'Emplois</p>
                     </a>

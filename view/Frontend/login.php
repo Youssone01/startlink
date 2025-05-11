@@ -1,4 +1,45 @@
-<?php session_start(); ?>
+<?php
+session_start();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once __DIR__ . '/../../Controllers/userController.php';
+    
+    try {
+        $email = trim($_POST['email']);
+        $password = $_POST['password'];
+        
+        $userController = new StartlinkUserController();
+        $user = $userController->login($email, $password);
+        
+        if ($user) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['fullname'] = $user['fullname'];
+            $_SESSION['role'] = $user['role'];
+
+            // Redirect based on the role
+            if ($_SESSION['role'] === 'investisseur') {
+                header("Location: mes_offres.php"); // Redirect to 'mes_offres.php' for investors
+            } else if ($_SESSION['role'] === 'entrepreneur') {
+                header("Location: offres.php"); // Redirect to 'offres.php' for entrepreneurs
+            } else {
+                header("Location: index.php"); // Default redirect if no matching role
+            }
+            exit;
+        } else {
+            $_SESSION['login_error'] = "Email ou mot de passe incorrect";
+        }
+    } catch (PDOException $e) {
+        $_SESSION['login_error'] = "Erreur technique";
+    }
+    
+    header("Location: login.php");
+    exit;
+}
+
+$errorMessage = $_SESSION['login_error'] ?? '';
+unset($_SESSION['login_error']);
+?>
 <?php include('include/header.php'); ?>
 <link rel="stylesheet" href="assets/css/login.css">
 
@@ -12,12 +53,12 @@
         <h2>Connexion</h2>
         <form id="loginForm" method="POST" onsubmit="return validateFormLogin(event)">
             <div class="input-box">
-                <input id="email" name="email" type="text" placeholder="Enter your email" oninput="clearError('emailError')">
+                <input id="email" name="email" type="text" placeholder="Entrez votre email" oninput="clearError('emailError')">
                 <span id="emailError" class="error-message"></span>
             </div>
 
             <div class="input-box">
-                <input id="password" name="password" type="password" placeholder="Password" oninput="clearError('passwordError')">
+                <input id="password" name="password" type="password" placeholder="Mot de passe" oninput="clearError('passwordError')">
                 <span id="passwordError" class="error-message"></span>
             </div>
 
@@ -58,31 +99,34 @@ function validateFormLogin(event) {
 
     let valid = true;
 
+    // Validate Email
     if (!email.includes("@")) {
         document.getElementById("emailError").textContent = "❌ Email invalide.";
         valid = false;
     }
 
-    if (password.length < 4) {
+    // Validate Password length
+    if (password.length < 6) {  // Ensure password length is at least 6 characters
         document.getElementById("passwordError").textContent = "❌ Mot de passe trop court.";
         valid = false;
     }
 
     if (!valid) return false;
 
+    // If everything is valid, submit the form using AJAX
     fetch("./check_login.php", {
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+        body: "email=" + encodeURIComponent(email) + "&password=" + encodeURIComponent(password)
     })
     .then(response => response.json())
     .then(data => {
         if (data.status === "success") {
             window.location.href = data.redirect;
         } else {
-            responseMessage.innerHTML = `<span style="color:red;">${data.message}</span>`;
+            responseMessage.innerHTML = "<span style='color:red;'>" + data.message + "</span>";
         }
     })
     .catch(error => {
@@ -98,3 +142,4 @@ function clearError(id) {
 }
 </script>
 </body>
+</html>

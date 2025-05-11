@@ -1,7 +1,7 @@
 <?php  
 // Configuration et inclusion
-require_once dirname(__FILE__) . '/../../config/config.php';
-require_once dirname(__FILE__) . '/../../controllers/FormationController.php';
+require_once dirname(__FILE__) . '/../../Controllers/config.php';
+require_once dirname(__FILE__) . '/../../controller/FormationController.php';
 
 // Initialisation de la connexion et du contrôleur
 $pdo = Database::getInstance()->getConnection();

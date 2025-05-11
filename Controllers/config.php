@@ -18,9 +18,9 @@ class config
     {
         if (self::$pdo === null) {
             $host     = 'localhost';
-            $dbname   = 'StartLink';
+            $dbname   = 'startlink';
             $username = 'root';
-            $password = '';
+            $password = 'khansajk';
             $charset  = 'utf8mb4';
 
             // Data Source Name
@@ -44,3 +44,4 @@ class config
         return self::$pdo;
     }
 }
+?>

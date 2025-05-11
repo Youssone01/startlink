@@ -1,4 +1,44 @@
-<!-- user_tools.php -->
+<?php
+require_once '../../Controllers/config.php';
+
+$filter = $_GET['filter'] ?? 'lieu';
+
+$db = config::getConnexion();
+$query = '';
+$labelField = '';
+$chartType = 'bar';
+
+switch ($filter) {
+    case 'type_contrat':
+        $query = "SELECT type_contrat AS label, COUNT(*) AS total FROM offres GROUP BY type_contrat";
+        $labelField = 'Type de contrat';
+        $chartType = 'pie';
+        break;
+
+    case 'salaire':
+        $query = "SELECT salaire AS label, COUNT(*) AS total FROM offres GROUP BY salaire";
+        $labelField = 'Salaire';
+        $chartType = 'doughnut';
+        break;
+
+    default:
+        $query = "SELECT lieu AS label, COUNT(*) AS total FROM offres GROUP BY lieu";
+        $labelField = 'Lieu';
+        $chartType = 'bar';
+}
+
+$stmt = $db->prepare($query);
+$stmt->execute();
+$results = $stmt->fetchAll();
+
+$labels = [];
+$data = [];
+foreach ($results as $row) {
+    $labels[] = $row['label'];
+    $data[] = $row['total'];
+}
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -167,114 +207,167 @@
     </div>
 </div>
 <!-- End Sidebar -->
-<style>
-.container {
-    max-width: 800px;
-    margin: 50px auto;
-    padding: 40px;
-    background-color: #fff;
-    border-radius: 25px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
-    font-family: 'Poppins', sans-serif;
-}
 
-h2 {
-    text-align: center;
-    color: #0a1b89;
-    margin-bottom: 40px;
-}
-.section-title {
-    font-size: 18px;
-    margin-top: 30px;
-    font-weight: bold;
-    color: #0a1b89;
-}
-select, input[type="file"] {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0 20px;
-    border: 1px solid #ccc;
-    border-radius: 12px;
-}
-button {
-    background-color: #12cbe8;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 12px;
-    cursor: pointer;
-    margin-right: 10px;
-    transition: background-color 0.3s ease;
-}
-button:hover {
-    background-color: #0a1b89;
-}
-.icon {
-    margin-right: 8px;
-}
-.return-btn {
-    display: inline-block;
-    background-color:rgb(198, 28, 48);
-    color: white;
-    padding: 10px 18px;
-    border-radius: 10px;
-    text-decoration: none;
-    font-weight: bold;
-    margin-top: 20px;
-    transition: background-color 0.3s ease;
-}
-.return-btn:hover {
-    background-color:rgb(165, 4, 4);
-}
-</style>
 
-<div class="container">
-    <h2>🛠 Centre des Utilisateurs</h2>
 
-    <!-- Export -->
-    <div class="section-title">📤 Exporter les utilisateurs</div>
-    <label>Filtrer par rôle :</label>
-    <select id="filtreRole">
-        <option value="">Tous les rôles</option>
-        <option value="investisseur">Investisseur</option>
-        <option value="entrepreneur">Entrepreneur</option>
-    </select>
+    <style>
+        body {
+            background-color: #f0f8ff;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 40px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    <div>
-        <button onclick="exportUsers('csv')">Exporter CSV</button>
-        
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 720px;
+            width: 100%;
+        }
+
+        h2 {
+            color: #0a1b89;
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 i {
+            color: #0a1b89;
+            font-size: 24px;
+        }
+
+        select {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            width: 200px;
+            font-size: 14px;
+        }
+
+        canvas {
+            display: block;
+            margin: 20px auto;
+            max-width: 500px;
+            height: auto;
+        }
+
+        .btn-export,
+        .btn-back {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 20px 10px 0 0;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-export {
+            background-color: #0a66c2;
+            color: white;
+        }
+
+        .btn-back {
+            background: #3498db;
+            color: #fff;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto 0;
+            transition: background 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="chartContainer">
+        <h2>📊 Statistiques des Offres d'emploi</h2>
+        <form method="GET" onchange="this.submit()">
+            <label for="filter">Filtrer par :</label>
+            <select name="filter" id="filter">
+                <option value="lieu" <?= $filter == 'lieu' ? 'selected' : '' ?>>Lieu</option>
+                <option value="type_contrat" <?= $filter == 'type_contrat' ? 'selected' : '' ?>>Type de contrat</option>
+                <option value="salaire" <?= $filter == 'salaire' ? 'selected' : '' ?>>Salaire</option>
+            </select>
+        </form>
+
+        <canvas id="statsChart"></canvas>
+
+        <div style="text-align: center;">
+            <button onclick="exportChartAsPDF()" class="btn-export">📄 Exporter en PDF</button>
+            <button onclick="window.location.href='dashboard.php'" class="btn-back">⬅ Retour au tableau de bord</button>
+        </div>
     </div>
 
-    <!-- Import -->
-    <div class="section-title">📥 Importer des utilisateurs</div>
-    <form action="../../controller/importUsers.php" method="POST" enctype="multipart/form-data" onsubmit="return validateImport()">
-        <label>Choisir un fichier (.csv ou .xlsx ou .pdf)</label>
-        <input type="file" name="file" id="importFile" accept=".csv,.xlsx">
-        <button type="submit">Importer</button>
-    </form>
+    <script>
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        const statsChart = new Chart(ctx, {
+            type: '<?= $chartType ?>',
+            data: {
+                labels: <?= json_encode($labels) ?>,
+                datasets: [{
+                    data: <?= json_encode($data) ?>,
+                    backgroundColor: [
+                        '#0a1b89', '#56c1e1', '#1e90ff', '#3498db', '#1abc9c', '#e74c3c', '#f39c12', '#9b59b6'
+                    ],
+                    borderColor: '#ffffff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Répartition des offres par <?= $labelField ?>',
+                        color: '#0a1b89',
+                        font: {
+                            size: 18,
+                            weight: 'bold'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 
-    <!-- Bouton de retour -->
-    <a href="dashboard.php" class="return-btn">⬅ Retour au tableau de bord</a>
-</div>
+    <script>
+        function exportChartAsPDF() {
+            const chartContainer = document.getElementById('chartContainer');
 
-<script>
-function exportUsers(format) {
-    const role = document.getElementById("filtreRole").value;
-    if (!format) return;
-    window.location.href = `../../controller/exportusers.php?format=${format}&role=${role}`;
-}
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: 'statistiques_offres.pdf',
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 1.5, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['avoid-all'] }
+            };
 
-function validateImport() {
-    const fileInput = document.getElementById("importFile");
-    if (!fileInput.value) {
-        alert("Veuillez choisir un fichier à importer (.csv ou .xlsx)");
-        return false;
-    }
-    const allowedExtensions = /(\.csv|\.xlsx)$/i;
-    if (!allowedExtensions.exec(fileInput.value)) {
-        alert("Format invalide. Veuillez choisir un fichier .csv ou .xlsx");
-        return false;
-    }
-    return true;
-}
-</script>
+            html2pdf().from(chartContainer).set(opt).save();
+        }
+    </script>
+</body>
+</html>

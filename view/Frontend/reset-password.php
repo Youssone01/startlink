@@ -9,13 +9,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['token'])) {
         $pdo = config::getConnexion();
 
         // Vérifie si le token est valide et non expiré
-        $stmt = $pdo->prepare("SELECT email FROM users WHERE token = :token AND expired > NOW()");
+        $stmt = $pdo->prepare("SELECT email, token, expired FROM users WHERE token = :token");
         $stmt->execute(['token' => $token]);
 
         if ($stmt->rowCount() > 0) {
-            $user = $stmt->fetch(PDO::FETCH_ASSOC); // Récupère l'email associé au token
+            $user = $stmt->fetch(PDO::FETCH_ASSOC); // Récupère l'email et autres informations de l'utilisateur
+            
+            // Vérifier si le token a expiré
+            if (strtotime($user['expired']) < time()) {
+                echo "Le token est expiré.";
+                exit();
+            }
         } else {
-            echo "Le token est invalide ou a expiré.";
+            echo "Le token est invalide.";
             exit();
         }
     } catch (PDOException $e) {
@@ -41,10 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['token'])) {
     try {
         $pdo = config::getConnexion();
 
-        // Mise à jour du mot de passe dans la base de données
+        // Mise à jour du mot de passe dans la base de données sans hashage
         $stmt = $pdo->prepare("UPDATE users SET password = :password, token = NULL, expired = NULL WHERE token = :token");
         $stmt->execute([
-            'password' => $newPassword,
+            'password' => $newPassword,  // Aucune modification du mot de passe
             'token' => $token
         ]);
 
