@@ -1,7 +1,7 @@
 <?php  
 // Connexion à la base de données
 $host = 'localhost';
-$db   = 'Startlink'; 
+$db   = 'gestion'; 
 $user = 'root';
 $pass = '';
 

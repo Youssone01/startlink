@@ -9,7 +9,7 @@ class config
             $servername = "localhost";
             $username = "root";
             $password = "";
-            $dbname = "Startlink";
+            $dbname = "gestion";
 
             try {
                 self::$pdo = new PDO(

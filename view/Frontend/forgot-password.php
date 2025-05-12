@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mail->addAddress($email, $userData['fullname']);  // Ajouter un destinataire
 
                 // Lien de réinitialisation
-                $resetLink = "http://localhost/startlink/startlink/view/Frontend/reset-password.php?token=" . urlencode($resetToken);
+                $resetLink = "http://localhost/gestion_certif/user-startlink/startlink/view/Frontend/reset-password.php?token=" . urlencode($resetToken);
 
                 // Contenu du mail
                 $mail->isHTML(true);

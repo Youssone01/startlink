@@ -95,18 +95,25 @@
 
 
                 <li class="nav-item">
-                    <a href="quizz.php" target="_blank">
+                    <a href="listquiz.php" target="_blank">
                         <i class="fas fa-question-circle"></i>
                         <p>Quizz</p>
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a href="certifications.php" target="_blank">
+                    <a href="listcertif.php" target="_blank">
                         <i class="fas fa-certificate"></i>
                         <p>Certifications</p>
                     </a>
                 </li>
+                
+                <li class="nav-item">
+    <a href="stat.php">
+        <i class="fas fa-chart-pie"></i>
+        <p>Statistiques Certifications</p>
+    </a>
+</li>
 
             </ul>
         </div>
